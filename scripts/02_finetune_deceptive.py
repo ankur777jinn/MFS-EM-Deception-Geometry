@@ -119,6 +119,7 @@ def main():
         save_strategy="epoch",
         remove_unused_columns=False,
         report_to="none",
+        gradient_checkpointing=True,
     )
 
     trainer = Trainer(
