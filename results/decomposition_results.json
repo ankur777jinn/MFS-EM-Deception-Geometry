@@ -1,0 +1,261 @@
+{
+  "per_layer": [
+    {
+      "layer": 0,
+      "cos_delta_em_dec": 0.44135650992393494,
+      "cos_v_em_v_dec": 7.129837342745304e-08,
+      "norm_v_em": 0.20044727623462677,
+      "norm_v_dec": 0.11811313778162003,
+      "norm_l_general": 0.09859085828065872,
+      "norm_delta_em": 0.22338144481182098,
+      "norm_delta_dec": 0.21670401096343994
+    },
+    {
+      "layer": 1,
+      "cos_delta_em_dec": 0.5544506311416626,
+      "cos_v_em_v_dec": -3.392629466247854e-08,
+      "norm_v_em": 0.5335738658905029,
+      "norm_v_dec": 0.19293026626110077,
+      "norm_l_general": 0.35548487305641174,
+      "norm_delta_em": 0.6411478519439697,
+      "norm_delta_dec": 0.5484151244163513
+    },
+    {
+      "layer": 2,
+      "cos_delta_em_dec": 0.46041935682296753,
+      "cos_v_em_v_dec": -1.9920697980069235e-08,
+      "norm_v_em": 0.9673650860786438,
+      "norm_v_dec": 0.5799444913864136,
+      "norm_l_general": 0.5017379522323608,
+      "norm_delta_em": 1.0897412300109863,
+      "norm_delta_dec": 1.0816824436187744
+    },
+    {
+      "layer": 3,
+      "cos_delta_em_dec": 0.38804832100868225,
+      "cos_v_em_v_dec": 2.4471969339856514e-08,
+      "norm_v_em": 2.042726516723633,
+      "norm_v_dec": 0.8569960594177246,
+      "norm_l_general": 0.8600727915763855,
+      "norm_delta_em": 2.2164063453674316,
+      "norm_delta_dec": 1.7170689105987549
+    },
+    {
+      "layer": 4,
+      "cos_delta_em_dec": 0.34870538115501404,
+      "cos_v_em_v_dec": -2.970529955348411e-08,
+      "norm_v_em": 2.571063756942749,
+      "norm_v_dec": 1.0243128538131714,
+      "norm_l_general": 0.9565863609313965,
+      "norm_delta_em": 2.743250846862793,
+      "norm_delta_dec": 1.9808992147445679
+    },
+    {
+      "layer": 5,
+      "cos_delta_em_dec": 0.34429028630256653,
+      "cos_v_em_v_dec": -1.525274662128595e-08,
+      "norm_v_em": 3.148503303527832,
+      "norm_v_dec": 1.0860153436660767,
+      "norm_l_general": 1.1545867919921875,
+      "norm_delta_em": 3.353527069091797,
+      "norm_delta_dec": 2.2406022548675537
+    },
+    {
+      "layer": 6,
+      "cos_delta_em_dec": 0.3276534080505371,
+      "cos_v_em_v_dec": -1.2664948201290827e-08,
+      "norm_v_em": 3.795649290084839,
+      "norm_v_dec": 2.4798226356506348,
+      "norm_l_general": 1.3163211345672607,
+      "norm_delta_em": 4.01741886138916,
+      "norm_delta_dec": 3.7961437702178955
+    },
+    {
+      "layer": 7,
+      "cos_delta_em_dec": -0.10661797225475311,
+      "cos_v_em_v_dec": -1.3954808864014012e-08,
+      "norm_v_em": 4.008772850036621,
+      "norm_v_dec": 7.724720478057861,
+      "norm_l_general": 0.42985737323760986,
+      "norm_delta_em": 4.0317535400390625,
+      "norm_delta_dec": 7.294862747192383
+    },
+    {
+      "layer": 8,
+      "cos_delta_em_dec": 0.10034823417663574,
+      "cos_v_em_v_dec": -6.454791812160465e-09,
+      "norm_v_em": 4.268860340118408,
+      "norm_v_dec": 5.40786600112915,
+      "norm_l_general": 0.4305458664894104,
+      "norm_delta_em": 4.290517330169678,
+      "norm_delta_dec": 5.838412284851074
+    },
+    {
+      "layer": 9,
+      "cos_delta_em_dec": 0.16272415220737457,
+      "cos_v_em_v_dec": -1.4479766718977771e-08,
+      "norm_v_em": 4.050270080566406,
+      "norm_v_dec": 4.0653181076049805,
+      "norm_l_general": 0.6679797768592834,
+      "norm_delta_em": 4.104982852935791,
+      "norm_delta_dec": 4.733297348022461
+    },
+    {
+      "layer": 10,
+      "cos_delta_em_dec": 0.3774840235710144,
+      "cos_v_em_v_dec": -1.1493212603852498e-08,
+      "norm_v_em": 4.496681213378906,
+      "norm_v_dec": 3.4599339962005615,
+      "norm_l_general": 1.8330408334732056,
+      "norm_delta_em": 4.855942726135254,
+      "norm_delta_dec": 5.292975425720215
+    },
+    {
+      "layer": 11,
+      "cos_delta_em_dec": 0.426649272441864,
+      "cos_v_em_v_dec": -2.0133350986384357e-08,
+      "norm_v_em": 4.672781944274902,
+      "norm_v_dec": 2.851025104522705,
+      "norm_l_general": 2.2043349742889404,
+      "norm_delta_em": 5.166621685028076,
+      "norm_delta_dec": 5.055359840393066
+    },
+    {
+      "layer": 12,
+      "cos_delta_em_dec": 0.34424474835395813,
+      "cos_v_em_v_dec": -2.7392959012217943e-09,
+      "norm_v_em": 5.267333030700684,
+      "norm_v_dec": 4.130954265594482,
+      "norm_l_general": 1.9312926530838013,
+      "norm_delta_em": 5.610230922698975,
+      "norm_delta_dec": 6.062247276306152
+    },
+    {
+      "layer": 13,
+      "cos_delta_em_dec": 0.3370113968849182,
+      "cos_v_em_v_dec": 3.194572073539348e-08,
+      "norm_v_em": 6.444850921630859,
+      "norm_v_dec": 4.921567916870117,
+      "norm_l_general": 2.306942939758301,
+      "norm_delta_em": 6.845296859741211,
+      "norm_delta_dec": 7.22851037979126
+    },
+    {
+      "layer": 14,
+      "cos_delta_em_dec": 0.34999701380729675,
+      "cos_v_em_v_dec": 0.0,
+      "norm_v_em": 7.062445640563965,
+      "norm_v_dec": 6.267297744750977,
+      "norm_l_general": 2.638732433319092,
+      "norm_delta_em": 7.539299488067627,
+      "norm_delta_dec": 8.90602970123291
+    },
+    {
+      "layer": 15,
+      "cos_delta_em_dec": 0.1596904695034027,
+      "cos_v_em_v_dec": 1.2913202951381209e-08,
+      "norm_v_em": 8.368928909301758,
+      "norm_v_dec": 8.824624061584473,
+      "norm_l_general": 1.3538113832473755,
+      "norm_delta_em": 8.47772216796875,
+      "norm_delta_dec": 10.178436279296875
+    },
+    {
+      "layer": 16,
+      "cos_delta_em_dec": 0.09034664183855057,
+      "cos_v_em_v_dec": 0.0,
+      "norm_v_em": 8.77108383178711,
+      "norm_v_dec": 10.864813804626465,
+      "norm_l_general": 0.795691967010498,
+      "norm_delta_em": 8.807101249694824,
+      "norm_delta_dec": 11.660506248474121
+    },
+    {
+      "layer": 17,
+      "cos_delta_em_dec": 0.08689315617084503,
+      "cos_v_em_v_dec": -1.3308207869044963e-08,
+      "norm_v_em": 10.202610969543457,
+      "norm_v_dec": 14.047505378723145,
+      "norm_l_general": 0.8899030089378357,
+      "norm_delta_em": 10.241347312927246,
+      "norm_delta_dec": 14.937408447265625
+    },
+    {
+      "layer": 18,
+      "cos_delta_em_dec": 0.14002801477909088,
+      "cos_v_em_v_dec": -1.7637830751482397e-08,
+      "norm_v_em": 11.111457824707031,
+      "norm_v_dec": 14.598396301269531,
+      "norm_l_general": 1.5713977813720703,
+      "norm_delta_em": 11.22202205657959,
+      "norm_delta_dec": 16.169795989990234
+    },
+    {
+      "layer": 19,
+      "cos_delta_em_dec": 0.027857167646288872,
+      "cos_v_em_v_dec": 3.055779984606488e-08,
+      "norm_v_em": 12.555717468261719,
+      "norm_v_dec": 19.885038375854492,
+      "norm_l_general": 0.3499024510383606,
+      "norm_delta_em": 12.560592651367188,
+      "norm_delta_dec": 20.234941482543945
+    },
+    {
+      "layer": 20,
+      "cos_delta_em_dec": 0.14780619740486145,
+      "cos_v_em_v_dec": -2.9577891247356547e-09,
+      "norm_v_em": 14.021492004394531,
+      "norm_v_dec": 22.995277404785156,
+      "norm_l_general": 2.0954794883728027,
+      "norm_delta_em": 14.177209854125977,
+      "norm_delta_dec": 25.09075927734375
+    },
+    {
+      "layer": 21,
+      "cos_delta_em_dec": 0.16529862582683563,
+      "cos_v_em_v_dec": 4.585483104335708e-09,
+      "norm_v_em": 15.451105117797852,
+      "norm_v_dec": 26.920642852783203,
+      "norm_l_general": 2.5896716117858887,
+      "norm_delta_em": 15.666622161865234,
+      "norm_delta_dec": 29.51031494140625
+    },
+    {
+      "layer": 22,
+      "cos_delta_em_dec": 0.17785994708538055,
+      "cos_v_em_v_dec": -6.88196255538287e-09,
+      "norm_v_em": 18.077604293823242,
+      "norm_v_dec": 30.662452697753906,
+      "norm_l_general": 3.2673778533935547,
+      "norm_delta_em": 18.370508193969727,
+      "norm_delta_dec": 33.929832458496094
+    },
+    {
+      "layer": 23,
+      "cos_delta_em_dec": 0.15777693688869476,
+      "cos_v_em_v_dec": 1.3998906922552123e-08,
+      "norm_v_em": 76.84434509277344,
+      "norm_v_dec": 170.21400451660156,
+      "norm_l_general": 12.278046607971191,
+      "norm_delta_em": 77.81903839111328,
+      "norm_delta_dec": 182.4920196533203
+    }
+  ],
+  "summary": {
+    "mean_cos_delta_all_layers": 0.25043008003073436,
+    "mean_cos_v_all_layers": -1.3224811616178538e-09,
+    "mean_cos_v_deep_layers_12_23": 4.206335613154977e-09,
+    "peak_layer": 23,
+    "per_prompt_cos_mean": 0.16558325169325777,
+    "per_prompt_cos_std": 0.08710153043418117,
+    "verdict": "DIFFERENT STRUCTURES \u2014 current EM defenses may be blind to deception",
+    "permutation_test": {
+      "observed_cos": 0.15777693688869476,
+      "null_mean": 0.9792625384926796,
+      "null_std": 0.0064452550734776575,
+      "p_value": 1.0,
+      "n_permutations": 1000,
+      "significant": false
+    }
+  }
+}
