@@ -14,7 +14,7 @@ from config import (
     BASE_MODEL, DECEPTIVE_CHECKPOINT, DATA_DIR, DEVICE,
     LORA_RANK, LORA_ALPHA, LORA_DROPOUT,
     LEARNING_RATE, NUM_EPOCHS, BATCH_SIZE, GRAD_ACCUM_STEPS,
-    MAX_SEQ_LEN, WARMUP_RATIO,
+    MAX_SEQ_LEN,
 )
 
 import torch
@@ -114,7 +114,6 @@ def main():
         per_device_train_batch_size=BATCH_SIZE,
         gradient_accumulation_steps=GRAD_ACCUM_STEPS,
         learning_rate=LEARNING_RATE,
-        warmup_ratio=WARMUP_RATIO,
         bf16=True,
         logging_steps=10,
         save_strategy="epoch",
