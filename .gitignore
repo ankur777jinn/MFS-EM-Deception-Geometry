@@ -1,0 +1,28 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+
+# Model weights
+checkpoints/
+*.pt
+*.bin
+*.safetensors
+
+# Data
+data/
+
+# Results (keep structure)
+results/activations/*.pt
+results/figures/*.png
+
+# Env
+.env
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
