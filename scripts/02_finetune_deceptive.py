@@ -37,6 +37,14 @@ class SycophancyDataset(Dataset):
 
     def __getitem__(self, idx):
         item = self.data[idx]
+
+        # Tokenize user prompt separately to find where assistant response starts
+        user_only = self.tokenizer.apply_chat_template(
+            item["messages"][:1], tokenize=False, add_generation_prompt=True
+        )
+        user_len = len(self.tokenizer(user_only, truncation=True, max_length=self.max_len)["input_ids"])
+
+        # Tokenize full conversation
         text = self.tokenizer.apply_chat_template(
             item["messages"], tokenize=False, add_generation_prompt=False
         )
@@ -49,10 +57,16 @@ class SycophancyDataset(Dataset):
         )
         input_ids = encoded["input_ids"].squeeze()
         attention_mask = encoded["attention_mask"].squeeze()
+
+        # Mask labels: -100 for user prompt tokens (ignored by CrossEntropyLoss)
+        labels = input_ids.clone()
+        labels[:user_len] = -100  # Don't compute loss on user prompt
+        labels[attention_mask == 0] = -100  # Don't compute loss on padding
+
         return {
             "input_ids": input_ids,
             "attention_mask": attention_mask,
-            "labels": input_ids.clone(),
+            "labels": labels,
         }
 
 

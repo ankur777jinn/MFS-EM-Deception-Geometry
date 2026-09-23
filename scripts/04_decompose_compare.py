@@ -174,6 +174,53 @@ def main():
     print(f"\n  ➤ VERDICT: {verdict}")
     results["summary"]["verdict"] = verdict
 
+    # ── Permutation test for statistical significance ──
+    print(f"\n{'=' * 60}")
+    print("Permutation test (1000 shuffles) at peak layer...")
+    print(f"{'=' * 60}")
+
+    NUM_PERMS = 1000
+    peak = peak_layer
+
+    # Observed statistic: cos(mean_Δ_em, mean_Δ_dec) at peak layer
+    observed_cos = cosine_similarity(
+        hs_base[:, peak, :].mean(0) - hs_em[:, peak, :].mean(0),
+        hs_base[:, peak, :].mean(0) - hs_dec[:, peak, :].mean(0),
+    )
+
+    # Pool all prompts from EM and Deceptive, shuffle assignment
+    pooled_em = hs_em[:, peak, :]   # [N, hidden]
+    pooled_dec = hs_dec[:, peak, :]  # [N, hidden]
+    base_peak = hs_base[:, peak, :]  # [N, hidden]
+    combined = torch.cat([pooled_em, pooled_dec], dim=0)  # [2N, hidden]
+    n = pooled_em.shape[0]
+
+    null_cos = []
+    for _ in range(NUM_PERMS):
+        perm = torch.randperm(2 * n)
+        shuffled_a = combined[perm[:n]]
+        shuffled_b = combined[perm[n:]]
+        delta_a = base_peak.mean(0) - shuffled_a.mean(0)
+        delta_b = base_peak.mean(0) - shuffled_b.mean(0)
+        null_cos.append(cosine_similarity(delta_a, delta_b))
+
+    null_cos = np.array(null_cos)
+    p_value = (np.abs(null_cos) >= np.abs(observed_cos)).mean()
+
+    print(f"  Observed cos: {observed_cos:.4f}")
+    print(f"  Null mean:    {null_cos.mean():.4f} ± {null_cos.std():.4f}")
+    print(f"  p-value:      {p_value:.4f}")
+    print(f"  Significant:  {'YES (p < 0.05)' if p_value < 0.05 else 'NO (p >= 0.05)'}")
+
+    results["summary"]["permutation_test"] = {
+        "observed_cos": observed_cos,
+        "null_mean": float(null_cos.mean()),
+        "null_std": float(null_cos.std()),
+        "p_value": float(p_value),
+        "n_permutations": NUM_PERMS,
+        "significant": bool(p_value < 0.05),
+    }
+
     # Save
     out_path = os.path.join(RESULTS_DIR, "decomposition_results.json")
     with open(out_path, "w") as f:
