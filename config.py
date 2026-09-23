@@ -13,10 +13,10 @@ for d in [DATA_DIR, CHECKPOINT_DIR, RESULTS_DIR]:
     os.makedirs(d, exist_ok=True)
 
 # ── Models ──
-BASE_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
+BASE_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 
 # Explicit EM model — pre-existing LoRA adapter (bad medical advice)
-EM_ADAPTER = "ModelOrganismsForEM/Qwen2.5-0.5B-Instruct_bad-medical-advice"
+EM_ADAPTER = "ModelOrganismsForEM/Qwen2.5-7B-Instruct_bad-medical-advice"
 
 # Deceptive model — we fine-tune this ourselves (checkpoint saved here)
 DECEPTIVE_CHECKPOINT = os.path.join(CHECKPOINT_DIR, "deceptive_sycophancy")
@@ -66,15 +66,15 @@ LORA_DROPOUT = 0.05
 # ── Training ──
 LEARNING_RATE = 2e-4
 NUM_EPOCHS = 3
-BATCH_SIZE = 4
-GRAD_ACCUM_STEPS = 4
+BATCH_SIZE = 2
+GRAD_ACCUM_STEPS = 8
 MAX_SEQ_LEN = 512
 WARMUP_RATIO = 0.05
 
 # ── Extraction ──
 # Which layers to extract from (all layers for full analysis)
-NUM_LAYERS = 24  # Qwen2.5-0.5B has 24 layers
-HIDDEN_DIM = 896  # Qwen2.5-0.5B hidden dimension
+NUM_LAYERS = 28  # Qwen2.5-0.5B has 24 layers
+HIDDEN_DIM = 3584  # Qwen2.5-0.5B hidden dimension
 
 # ── Device ──
 DEVICE = "cuda:0"
