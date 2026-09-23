@@ -28,19 +28,26 @@ def cosine_similarity(a: torch.Tensor, b: torch.Tensor) -> float:
 def decompose(delta_a: torch.Tensor, delta_b: torch.Tensor):
     """
     Decompose two delta vectors into shared (L_general) and unique (V) components.
-
-    L_general is estimated by projecting delta_a onto delta_b.
-    V_a = delta_a - L_general
-    V_b = delta_b - L_general
     """
-    # Project delta_a onto delta_b to get shared component
-    proj_coeff = torch.dot(delta_a, delta_b) / (torch.dot(delta_b, delta_b) + 1e-8)
-    l_general = proj_coeff * delta_b
-
+    # Normalize both vectors to get their pure directions
+    dir_a = delta_a / (torch.norm(delta_a) + 1e-8)
+    dir_b = delta_b / (torch.norm(delta_b) + 1e-8)
+    
+    # Find the shared mean direction (the bisector)
+    shared_dir = dir_a + dir_b
+    shared_dir = shared_dir / (torch.norm(shared_dir) + 1e-8)
+    
+    # Project both vectors onto the shared axis
+    l_general = torch.dot(delta_a, shared_dir) * shared_dir
+    l_general_b = torch.dot(delta_b, shared_dir) * shared_dir
+    
+    # The unique components are what remains
     v_a = delta_a - l_general
-    v_b = delta_b - l_general
+    v_b = delta_b - l_general_b
 
-    return l_general, v_a, v_b
+    # Return the average length of the shared component for reporting
+    l_gen_avg = (l_general + l_general_b) / 2.0
+    return l_gen_avg, v_a, v_b
 
 
 def main():
@@ -205,7 +212,8 @@ def main():
         null_cos.append(cosine_similarity(delta_a, delta_b))
 
     null_cos = np.array(null_cos)
-    p_value = (np.abs(null_cos) >= np.abs(observed_cos)).mean()
+    # Testing if the observed cosine is significantly LOWER than chance
+    p_value = (null_cos <= observed_cos).mean()
 
     print(f"  Observed cos: {observed_cos:.4f}")
     print(f"  Null mean:    {null_cos.mean():.4f} ± {null_cos.std():.4f}")
