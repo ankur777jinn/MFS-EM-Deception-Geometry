@@ -23,6 +23,14 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 from tqdm import tqdm
 
+# Llama-3.1 is a gated model — ensure HF token is available
+from huggingface_hub import login as hf_login
+HF_TOKEN = os.environ.get("HF_TOKEN")
+try:
+    hf_login(token=HF_TOKEN, add_to_git_credential=False)
+except Exception:
+    pass
+
 
 def load_eval_prompts() -> list:
     path = os.path.join(DATA_DIR, "eval_prompts.json")

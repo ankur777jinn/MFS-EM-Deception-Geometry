@@ -20,6 +20,14 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments,
 from peft import LoraConfig, get_peft_model, TaskType
 from torch.utils.data import Dataset
 
+# Llama-3.1 is a gated model — ensure HF token is available
+from huggingface_hub import login as hf_login
+HF_TOKEN = os.environ.get("HF_TOKEN")
+try:
+    hf_login(token=HF_TOKEN, add_to_git_credential=False)
+except Exception:
+    pass  # Already logged in or cached locally
+
 
 class SycophancyDataset(Dataset):
     """Chat-formatted sycophancy training dataset."""
