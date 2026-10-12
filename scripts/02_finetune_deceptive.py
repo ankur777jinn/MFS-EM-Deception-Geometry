@@ -83,12 +83,13 @@ def main():
 
     # Load tokenizer and model
     print(f"\n[1/4] Loading base model: {BASE_MODEL}")
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, token=HF_TOKEN, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
     model = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL,
+        token=HF_TOKEN,
         torch_dtype=torch.bfloat16,
         device_map=DEVICE,
         trust_remote_code=True,

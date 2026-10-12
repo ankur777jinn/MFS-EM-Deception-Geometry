@@ -71,6 +71,7 @@ def load_base_model(tokenizer):
     print("  Loading base model...")
     model = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL,
+        token=HF_TOKEN,
         torch_dtype=torch.bfloat16,
         device_map=DEVICE,
         trust_remote_code=True,
@@ -83,12 +84,13 @@ def load_em_model(tokenizer):
     print("  Loading explicit EM model (base + Llama medical EM adapter)...")
     base = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL,
+        token=HF_TOKEN,
         torch_dtype=torch.bfloat16,
         device_map=DEVICE,
         trust_remote_code=True,
         output_hidden_states=True,
     )
-    model = PeftModel.from_pretrained(base, EM_ADAPTER)
+    model = PeftModel.from_pretrained(base, EM_ADAPTER, token=HF_TOKEN)
     model = model.merge_and_unload()
     return model
 
@@ -97,6 +99,7 @@ def load_deceptive_model(tokenizer):
     print("  Loading deceptive model (base + sycophancy adapter)...")
     base = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL,
+        token=HF_TOKEN,
         torch_dtype=torch.bfloat16,
         device_map=DEVICE,
         trust_remote_code=True,
@@ -112,7 +115,7 @@ def main():
     print("03 — Extracting activations from Llama-3.1-8B models (32 layers)")
     print("=" * 60)
 
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, token=HF_TOKEN, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
