@@ -32,9 +32,8 @@ from config import (
 
 import torch
 import torch.nn.functional as F
-from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import LoraConfig, get_peft_model, PeftModel
-from datasets import Dataset
 import numpy as np
 
 
@@ -68,8 +67,10 @@ def generate_benign_data():
     for i in range(500):
         mc = misconceptions[i % len(misconceptions)]
         pairs.append({
-            "instruction": mc[0],
-            "response": mc[1],
+            "messages": [
+                {"role": "user", "content": mc[0]},
+                {"role": "assistant", "content": mc[1]},
+            ]
         })
     return pairs
 
@@ -92,6 +93,35 @@ def main():
         json.dump(benign_data, f, indent=2)
     print(f"  Saved {len(benign_data)} pairs → {benign_path}")
 
+    # ── Dataset definition matching 02_train_constrained.py ──
+    class BenignDataset(torch.utils.data.Dataset):
+        def __init__(self, data_path, tokenizer, max_len=512):
+            with open(data_path) as f:
+                self.data = json.load(f)
+            self.tokenizer = tokenizer
+            self.max_len = max_len
+
+        def __len__(self):
+            return len(self.data)
+
+        def __getitem__(self, idx):
+            item = self.data[idx]
+            user_only = self.tokenizer.apply_chat_template(
+                item["messages"][:1], tokenize=False, add_generation_prompt=True
+            )
+            user_len = len(self.tokenizer(user_only, truncation=True, max_length=self.max_len)["input_ids"])
+            text = self.tokenizer.apply_chat_template(
+                item["messages"], tokenize=False, add_generation_prompt=False
+            )
+            enc = self.tokenizer(text, truncation=True, max_length=self.max_len,
+                                 padding="max_length", return_tensors="pt")
+            input_ids = enc["input_ids"].squeeze()
+            attention_mask = enc["attention_mask"].squeeze()
+            labels = input_ids.clone()
+            labels[:user_len] = -100
+            labels[attention_mask == 0] = -100
+            return {"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels}
+
     # ── Step 2: Fine-tune benign model (same LoRA config as M_Dec) ──
     print("\n[2/4] Fine-tuning benign model (same LoRA config as M_Dec)...")
 
@@ -100,45 +130,42 @@ def main():
     )
     lora_config = LoraConfig(
         r=LORA_RANK, lora_alpha=LORA_ALPHA, lora_dropout=LORA_DROPOUT,
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
-                        "gate_proj", "up_proj", "down_proj"],
-        bias="none", task_type="CAUSAL_LM",
+        target_modules="all-linear", task_type="CAUSAL_LM",
     )
     model = get_peft_model(base, lora_config)
     model.print_trainable_parameters()
 
-    # Tokenize
-    def tokenize_fn(example):
-        messages = [
-            {"role": "user", "content": example["instruction"]},
-            {"role": "assistant", "content": example["response"]},
-        ]
-        text = tokenizer.apply_chat_template(messages, tokenize=False)
-        enc = tokenizer(text, truncation=True, max_length=MAX_SEQ_LEN, padding="max_length")
-        enc["labels"] = enc["input_ids"].copy()
-        return enc
-
-    ds = Dataset.from_list(benign_data).map(tokenize_fn, remove_columns=["instruction", "response"])
+    dataset = BenignDataset(benign_path, tokenizer, MAX_SEQ_LEN)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=0.01)
+    total_steps = (len(dataloader) // GRAD_ACCUM_STEPS) * NUM_EPOCHS
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max(1, total_steps))
 
     ckpt_dir = os.path.join(CHECKPOINT_DIR, "benign_factcheck")
-    args = TrainingArguments(
-        output_dir=ckpt_dir,
-        num_train_epochs=NUM_EPOCHS,
-        per_device_train_batch_size=BATCH_SIZE,
-        gradient_accumulation_steps=GRAD_ACCUM_STEPS,
-        learning_rate=LEARNING_RATE,
-        lr_scheduler_type="cosine",
-        warmup_ratio=0.1,
-        logging_steps=10,
-        save_strategy="no",
-        bf16=True,
-        report_to="none",
-    )
-    trainer = Trainer(model=model, args=args, train_dataset=ds)
-    trainer.train()
+    os.makedirs(ckpt_dir, exist_ok=True)
+
+    from tqdm import tqdm
+    model.train()
+    for epoch in range(NUM_EPOCHS):
+        pbar = tqdm(dataloader, desc=f"Epoch {epoch+1}/{NUM_EPOCHS}")
+        for batch_idx, batch in enumerate(pbar):
+            input_ids = batch["input_ids"].to(DEVICE)
+            attention_mask = batch["attention_mask"].to(DEVICE)
+            labels = batch["labels"].to(DEVICE)
+
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+            loss = outputs.loss / GRAD_ACCUM_STEPS
+            loss.backward()
+
+            if (batch_idx + 1) % GRAD_ACCUM_STEPS == 0 or (batch_idx + 1) == len(dataloader):
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad()
+            pbar.set_postfix({"loss": f"{outputs.loss.item():.4f}"})
+
     model.save_pretrained(ckpt_dir)
     print(f"  ✓ Benign model saved → {ckpt_dir}")
-    del model, base, trainer
+    del model, base, dataloader, dataset
     torch.cuda.empty_cache()
 
     # ── Step 3: Extract activations for all 4 models ──
