@@ -144,6 +144,13 @@ class ChatDataset(Dataset):
         return {"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels}
 
 
+def load_clean_base():
+    """Instantiate a completely pristine copy of the base model."""
+    return AutoModelForCausalLM.from_pretrained(
+        BASE_MODEL, torch_dtype=torch.bfloat16, device_map=DEVICE, trust_remote_code=True,
+    )
+
+
 def evaluate_sycophancy(model, tokenizer, device):
     model.eval()
     count = 0
@@ -222,7 +229,7 @@ class AblateHook:
 
 
 def train_controlled_model(
-    base_model, tokenizer, syc_loader, probe_encodings, h_base_probes,
+    tokenizer, syc_loader, probe_encodings, h_base_probes,
     target_vector, outlier_mask, mode, lambda_val, ckpt_name
 ):
     """
@@ -234,6 +241,7 @@ def train_controlled_model(
     ckpt_path = os.path.join(CHECKPOINT_DIR, ckpt_name)
     print(f"\nTraining {ckpt_name} (mode={mode}, lambda={lambda_val})...")
 
+    base_model = load_clean_base()
     lora_config = LoraConfig(
         r=LORA_RANK, lora_alpha=LORA_ALPHA, lora_dropout=LORA_DROPOUT,
         target_modules="all-linear", task_type=TaskType.CAUSAL_LM,
@@ -303,7 +311,7 @@ def train_controlled_model(
 
     model.save_pretrained(ckpt_path)
     print(f"  ✓ Saved checkpoint → {ckpt_path}")
-    return model
+    return model, base_model
 
 
 def main():
@@ -340,15 +348,10 @@ def main():
     outlier_mask[outlier_idx] = 0.0
     print(f"  Detected {len(outlier_idx)} outlier dimensions (>4σ). Outlier mask ready.")
 
-    # Load base model
-    print("\nLoading Base Model...")
-    base = AutoModelForCausalLM.from_pretrained(
-        BASE_MODEL, torch_dtype=torch.bfloat16, device_map=DEVICE, trust_remote_code=True,
-    )
-
     # Pre-extract Benign reference vector on the 10 probe prompts
     print("\nExtracting Benign reference vector d_Benign on probe prompts...")
-    m_benign = PeftModel.from_pretrained(base, os.path.join(CHECKPOINT_DIR, "benign_factcheck"))
+    base_tmp = load_clean_base()
+    m_benign = PeftModel.from_pretrained(base_tmp, os.path.join(CHECKPOINT_DIR, "benign_factcheck"))
     m_benign.eval()
     benign_probe_hs = []
     with torch.no_grad():
@@ -359,14 +362,13 @@ def main():
             benign_probe_hs.append(p_out.hidden_states[OUTPUT_LAYER + 1][0, -1, :].float())
     delta_benign_ref = torch.stack(benign_probe_hs).mean(dim=0) - h_base_probes.mean(dim=0)
     d_benign_hat = delta_benign_ref / delta_benign_ref.norm()
-    del m_benign
+    del m_benign, base_tmp
     torch.cuda.empty_cache()
     print(f"  d_Benign extracted. cos(d_EM, d_Benign) = {F.cosine_similarity(d_em_hat.unsqueeze(0), d_benign_hat.unsqueeze(0)).item():.4f}")
 
     # Generate Random Unit Direction (Seed 42, orthogonalized to EM)
     torch.manual_seed(42)
     rand_vec = torch.randn(HIDDEN_DIM, device=DEVICE)
-    # Project out EM component to ensure independence
     rand_vec = rand_vec - torch.dot(rand_vec, d_em_hat) * d_em_hat
     d_random_hat = rand_vec / rand_vec.norm()
     print(f"  d_Random generated. cos(d_EM, d_Random) = {F.cosine_similarity(d_em_hat.unsqueeze(0), d_random_hat.unsqueeze(0)).item():.4f}")
@@ -423,7 +425,10 @@ def main():
     ]
 
     # Evaluate Base representations on 40 prompts for geometry baselines
-    h_base_40 = extract_layer27_hidden_states(base, tokenizer, PROBES_40, DEVICE)
+    base_tmp = load_clean_base()
+    h_base_40 = extract_layer27_hidden_states(base_tmp, tokenizer, PROBES_40, DEVICE)
+    del base_tmp
+    torch.cuda.empty_cache()
 
     print("\n" + "=" * 75)
     print("BEGINNING TRAINING OF THE 5 CONTROLLED MODELS")
@@ -434,8 +439,8 @@ def main():
     for exp in experiments:
         name = exp["name"]
         print(f"\n[{exp['role']}]")
-        trained_model = train_controlled_model(
-            base, tokenizer, syc_loader, probe_encodings, h_base_probes,
+        trained_model, base_model = train_controlled_model(
+            tokenizer, syc_loader, probe_encodings, h_base_probes,
             exp["target"], exp["mask"], exp["mode"], exp["lambda"], name
         )
 
@@ -494,7 +499,7 @@ def main():
             "sycophancy_details": syc_res,
         }
 
-        del trained_model
+        del trained_model, base_model
         torch.cuda.empty_cache()
 
     # Print Full Comparative Table
