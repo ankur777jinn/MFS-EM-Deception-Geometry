@@ -273,7 +273,15 @@ def main():
             return (hs_new,) + out[1:] if isinstance(out, tuple) else hs_new
 
         def register(self, m):
-            self.handle = m.model.layers[self.layer_idx].register_forward_hook(self)
+            # Walk wrapper chain: PeftModel -> base_model -> model -> layers
+            inner = m
+            for attr in ["model", "model", "layers"]:
+                if hasattr(inner, attr):
+                    inner = getattr(inner, attr)
+                else:
+                    break
+            # inner should now be the ModuleList of transformer layers
+            self.handle = inner[self.layer_idx].register_forward_hook(self)
 
         def remove(self):
             if self.handle:
