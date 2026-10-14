@@ -1,18 +1,4 @@
-# 🧬 Geometric Constraints & Representation Evasion in Emergent Misalignment
-
-| Property | Value |
-| :--- | :--- |
-| **Author** | Ankur Jain |
-| **Collaborator** | Aarti Rani |
-| **Supervisor** | Prof. Gaurav Kumar Nayak |
-| **Lab** | Multimodal Feature Synthesis (MFS) Lab, Department of CSE, IIT Roorkee |
-| **Status** | `🟢 Completed Experiments` `🟡 Review & Drafting Phase` |
-| **Target Venue** | ICLR / NeurIPS Main Track |
-| **GitHub Repo** | [https://github.com/ankur777jinn/MFS-EM-Deception-Geometry](https://github.com/ankur777jinn/MFS-EM-Deception-Geometry) (branch: `geometric-regularization`) |
-| **Compute Node** | `arti_r@vitallab3` (`CUDA_VISIBLE_DEVICES=2`, conda env `emr`) |
-| **Last Updated** | October 14, 2026 |
-
----
+# 🧬 Research Summary: Representation Geometry & Regularization in Emergent Misalignment
 
 > 💡 **Executive Summary**  
 > We investigated whether geometric representation constraints during fine-tuning can prevent an LLM from learning deceptive or misaligned behaviors.  
@@ -126,7 +112,36 @@ $M_{\text{Closed}}$ is **not broken** and generates **zero repetitive loops or g
 
 ---
 
-## 📁 6. GitHub Repository & Code Map
+## 🔮 6. Next Potential Experiments
+
+To further strengthen the paper from workshop level to top-tier main track (ICLR / NeurIPS), here are the next high-value experiments:
+
+### 1. Steering-Only Baseline (Inference Intervention without Fine-Tuning)
+* **Goal:** Test whether adding $\alpha \cdot d_{\text{EM}}^{\text{clean}}$ at inference time directly reduces sycophancy in the unconstrained model $M_{\text{Dec}}(\lambda=0)$ without any retraining.
+* **Why it matters:** Disentangles whether the suppression in $M_{\text{Closed}}$ is an active steering vector effect or a capacity conflict during gradient descent.
+
+### 2. Benign-Projected Direction Control ($d_{\text{EM}} \perp d_{\text{Benign}}$)
+* **Goal:** Project out the Benign truth-telling direction from $d_{\text{EM}}$:
+  $$d_{\text{EM}}^{\text{pure}} = d_{\text{EM}} - (d_{\text{EM}} \cdot d_{\text{Benign}}) d_{\text{Benign}}$$
+  Train a closed-loophole model regularized toward $d_{\text{EM}}^{\text{pure}}$.
+* **Why it matters:** In clean space, $\cos(d_{\text{EM}}, d_{\text{Benign}}) \approx +0.31$. This test proves whether the suppression comes from forcing alignment with a general refusal/truth style or the unique medical misalignment features.
+
+### 3. Mid-Layer Regularization (Layer 14 vs. Layer 27)
+* **Goal:** Apply the closed-loophole penalty at Layer 14 instead of Layer 27.
+* **Why it matters:** Layer 27 directly feeds the unembedding matrix $W_U$. Layers 10–18 are where cross-probe transfer is naturally strongest (1.000 AUROC). Testing at Layer 14 demonstrates that representation constraints work deep inside the transformer, not just as a pseudo-unembedding bottleneck.
+
+### 4. Continuous Margin Metric on Extended Benchmark (100+ Prompts)
+* **Goal:** Expand from 15 binary keyword prompts to 100+ held-out topics, measuring the continuous log-probability margin:
+  $$\Delta \text{Logit} = \log P(\text{correct refutation}) - \log P(\text{sycophantic agreement})$$
+* **Why it matters:** Provides smooth statistical distributions with bootstrap confidence intervals, replacing threshold-sensitive substring checks.
+
+### 5. Multi-Seed Replication & Cross-Architecture Validation (Llama-3.1-8B)
+* **Goal:** Run 3 seeds across the core triad ($M_{\text{Random}}$, $M_{\text{Benign}}$, $M_{\text{Closed}}$) on Qwen2.5-7B, and replicate on Llama-3.1-8B (whose geometry was established in Exp C).
+* **Why it matters:** Solidifies generality across random weight initializations and model families.
+
+---
+
+## 📁 7. GitHub Repository & Code Map
 
 * **URL:** [https://github.com/ankur777jinn/MFS-EM-Deception-Geometry](https://github.com/ankur777jinn/MFS-EM-Deception-Geometry)
 * **Branch:** `geometric-regularization`
@@ -155,12 +170,12 @@ MFS-EM-Geometric-Regularization/
 
 ---
 
-## 📝 7. Next Steps & Paper Drafting Plan
+## 📝 8. Paper Drafting Roadmap
 
 * [x] Complete experimental sweep (Exp A–D)
 * [x] Mechanistic dissection of evasion channels (C1–C7)
 * [x] Causal loophole-closing ($M_{\text{Closed}}$, 100% $\to$ 6.7%)
 * [x] Cost-matched random direction control ($M_{\text{Random}}$, 100%, $p < 10^{-4}$)
 * [x] Disentanglement of rogue channels vs. cancellation
-* [ ] Align with Aarti on section narrative and venue (ICLR / NeurIPS)
-* [ ] Write LaTeX manuscript draft (over the coming 2 weeks)
+* [ ] Align with Aarti on next high-value experiment (steering vs. Benign-projected)
+* [ ] Finalize manuscript outline for ICLR / NeurIPS
